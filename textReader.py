@@ -4,14 +4,19 @@ import os
 import re
 from firebaseHandler import FirebaseManager
 
-def process_file(files_directory, shop):
+def process_file(files_directory):
     pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
     folders_list = os.listdir(files_directory)
     i=0
     db_data={}
     for folder in folders_list:
+        if "biedronka" in folder:
+            shop = "biedronka"
+        else:
+            shop = "lidl"
         folder_dir = files_directory+folder
-        date = folder
+        pattern = fr"(.*){shop}$"
+        date = re.match(pattern, folder).group(1)
         files_list = os.listdir(folder_dir)
         for file in files_list:
             filename = os.path.join(files_directory,folder,file)
@@ -47,7 +52,7 @@ def process_file(files_directory, shop):
 if __name__ == "__main__":
     firebase_manager = FirebaseManager(
         service_account_key="serviceAccountKey.json",
-        bucket_name="your-bucket-name",
-        database_url="your-firebase-url"
+        bucket_name="alkoalertfirebase.firebasestorage.app",
+        database_url="https://alkoalertfirebase-default-rtdb.europe-west1.firebasedatabase.app/"
     )
-    process_file("C:\\Users\\Marta\\Desktop\\scrape\\", "lidl")
+    process_file("C:\\Users\\Marta\\Desktop\\scrape\\")

@@ -8,7 +8,7 @@ def scrape_images(base_url, output_folder):
     os.makedirs(output_folder, exist_ok=True)
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=False)
+        browser = p.chromium.launch(headless=True)
         page = browser.new_page()
 
         page.goto(base_url)
@@ -40,8 +40,7 @@ def scrape_images(base_url, output_folder):
             if date_match:
                 date_range = f"od-{date_match.group(1)}-do-{date_match.group(2)}"
                 print(f"Extracted date range: {date_range}")
-                date_range_shop = date_range+"lidl"
-                specific_output_folder = os.path.join(output_folder, date_range_shop)
+                specific_output_folder = os.path.join(output_folder, date_range)
                 os.makedirs(specific_output_folder, exist_ok=True)
             else:
                 print("Could not extract date range from the URL. Skipping this offer.")
@@ -80,7 +79,7 @@ def scrape_images(base_url, output_folder):
                     page.goto(correct_url)
                     print(f"Attempting to scrape: {correct_url}")
 
-                    current_page_content = page.locator("body").text_content()
+                    current_page_content = page.locator("div.page__wrapper").first.inner_html()
 
                     if previous_page_content and current_page_content == previous_page_content:
                         identical_page_count += 1
@@ -124,8 +123,8 @@ def scrape_images(base_url, output_folder):
 
 website_url = "https://www.lidl.pl/"
 output_directory = "C:\\Users\\Marta\\Desktop\\scrape"
-folders = os.listdir(output_directory)
-for folder in folders:
-    shutil.rmtree(os.path.join(output_directory, folder))
+# folders = os.listdir(output_directory)
+# for folder in folders:
+#     shutil.rmtree(os.path.join(output_directory, folder))
 
 scrape_images(website_url, output_directory)
